@@ -128,3 +128,8 @@ def rewards_pool(strategy):
 @pytest.fixture(scope="session")
 def RELATIVE_APPROX():
     yield 1e-3
+
+
+@pytest.fixture(autouse=True)
+def isolation(fn_isolation):
+        pass
