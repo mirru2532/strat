@@ -260,7 +260,7 @@ abstract contract BaseConvexMetapoolStrategy is BaseStrategyInitializable {
         if (dexId < 2) {
             return
                 IUniswapV2Swap(dexes[dexId]).getAmountsOut(amount, path)[
-                    path.length.sub(2)
+                    path.length.sub(2) // returned array from fn is n_coins - 1 so amounts out for each swap, take last
                 ];
         }
 

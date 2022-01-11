@@ -24,8 +24,11 @@ contract Strategy is BaseConvexMetapoolStrategy {
     address[] public underlyingCoinsForDepositing;
     uint256[] public uniswapV3PoolFeesForUnderlying;
 
+    address public underlyingCoinForValueCalculation;
+
     constructor(
         address _vault,
+        address _underlyingCoinForValueCalculation,
         uint256[2] memory _dexIds,
         uint24[3] memory _uniswapV3PoolFees,
         address[2] memory _underlyingCoinsForDepositing,
@@ -43,6 +46,7 @@ contract Strategy is BaseConvexMetapoolStrategy {
             settings
         )
     {
+        underlyingCoinForValueCalculation = _underlyingCoinForValueCalculation;
         underlyingCoinsForDepositing = _underlyingCoinsForDepositing;
         uniswapV3PoolFeesForUnderlying = _uniswapV3PoolFeesForUnderlying;
     }
@@ -61,6 +65,13 @@ contract Strategy is BaseConvexMetapoolStrategy {
         uniswapV3PoolFeesForUnderlying[coinId] = newFee;
     }
 
+    function setUnderlyingCoinForValueCalculation(address newCoin)
+        external
+        onlyAuthorized
+    {
+        underlyingCoinForValueCalculation = newCoin;
+    }
+
     function ethToWant(uint256 _amtInWei)
         public
         view
@@ -71,7 +82,7 @@ contract Strategy is BaseConvexMetapoolStrategy {
 
         address[] memory path = new address[](2);
         path[0] = Coins.WETH;
-        path[1] = Coins.DAI;
+        path[1] = underlyingCoinForValueCalculation;
 
         return
             IInvestZap(TRIPOOL_ZAP).calc_token_amount(
