@@ -245,32 +245,6 @@ abstract contract BaseConvexMetapoolStrategy is BaseStrategyInitializable {
         return protected;
     }
 
-    function _claimableInETH() internal view virtual returns (uint256) {
-        uint256 _crvEarned =
-            IConvexRewardPool(rewardsPool).earned(address(this));
-        uint256 _cvxEarned = Convex.getCVXMintAmount(_crvEarned);
-
-        uint256 crvValue;
-        uint256 cvxValue;
-
-        if (_crvEarned > 0) {
-            address[] memory path = new address[](2);
-            path[0] = Coins.CRV;
-            path[1] = Coins.WETH;
-            crvValue = _getAmountOutByDex(_crvEarned, 0, path);
-        }
-
-        if (_cvxEarned > 0) {
-            address[] memory path = new address[](2);
-            path[0] = Coins.CVX;
-            path[1] = Coins.WETH;
-
-            cvxValue = _getAmountOutByDex(_cvxEarned, 1, path);
-        }
-
-        return crvValue.add(cvxValue);
-    }
-
     function _getAmountOutByDex(
         uint256 amount,
         uint256 coinId,
@@ -279,7 +253,10 @@ abstract contract BaseConvexMetapoolStrategy is BaseStrategyInitializable {
         uint256 dexId = dexIds[coinId];
 
         if (dexId < 2) {
-            return IUniswapV2Swap(dexes[dexId]).getAmountsOut(amount, path)[0];
+            return
+                IUniswapV2Swap(dexes[dexId]).getAmountsOut(amount, path)[
+                    path.length.sub(2)
+                ];
         }
 
         bytes memory data =
