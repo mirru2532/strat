@@ -109,9 +109,12 @@ abstract contract BaseConvexMetapoolStrategy is BaseStrategyInitializable {
 
     function setDex(uint256 _coinId, uint256 _dexId) external onlyAuthorized {
         dexIds[_coinId] = _dexId;
-        if (_coinId == 0)
-            _safeApprove(IERC20(Coins.CRV), dexes[_dexId], type(uint256).max);
-        else _safeApprove(IERC20(Coins.CVX), dexes[_dexId], type(uint256).max);
+        if (_coinId != 2)
+            _safeApprove(
+                IERC20(_coinId == 0 ? Coins.CRV : Coins.CVX),
+                dexes[_dexId],
+                type(uint256).max
+            );
     }
 
     function setUniswapV3PoolFee(uint256 _feeId, uint24 _newFee)
@@ -179,6 +182,7 @@ abstract contract BaseConvexMetapoolStrategy is BaseStrategyInitializable {
 
     function adjustPosition(uint256 _debtOutstanding) internal override {
         if (emergencyExit) return;
+
         uint256 _want = want.balanceOf(address(this));
 
         if (_want > 0) {
@@ -192,6 +196,7 @@ abstract contract BaseConvexMetapoolStrategy is BaseStrategyInitializable {
         returns (uint256 _liquidatedAmount, uint256 _loss)
     {
         uint256 _balance = balanceOfWant();
+
         if (_balance < _amountNeeded) {
             _liquidatedAmount = _withdraw(_amountNeeded.sub(_balance));
             _liquidatedAmount = _liquidatedAmount.add(_balance);

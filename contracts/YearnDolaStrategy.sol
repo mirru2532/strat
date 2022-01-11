@@ -104,6 +104,7 @@ contract Strategy is BaseConvexMetapoolStrategy {
             crvEarned = _adjustCRV(crvEarned);
 
             address[] memory path = new address[](3);
+
             path[0] = Coins.CRV;
             path[1] = Coins.WETH;
             path[2] = underlyingCoinsForDepositing[0];
@@ -138,6 +139,7 @@ contract Strategy is BaseConvexMetapoolStrategy {
         uint256 newWantBalance = want.balanceOf(address(this));
 
         uint256 profit = newWantBalance.sub(initialWantBalance);
+
         uint256 totalAssets = newWantBalance.add(balanceOfPool());
 
         uint256 debt = vault.strategies(address(this)).totalDebt;
